@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# OVS: append hugepage defaults only on Ubuntu 22.04
+if command -v lsb_release >/dev/null 2>&1; then
+	DIST_ID=$(lsb_release -is 2>/dev/null || echo "")
+	DIST_RELEASE=$(lsb_release -rs 2>/dev/null || echo "")
+	if [ "$DIST_ID" = "Ubuntu" ]; then
+		case "$DIST_RELEASE" in
+			22.04*)
+				CONF_FILE="/etc/mellanox/mlnx-ovs.conf"
+				if [ -f "$CONF_FILE" ]; then
+					grep -q '^OVS_DOCA=' "$CONF_FILE" || echo 'OVS_DOCA="no"' >> "$CONF_FILE"
+					grep -q '^OVS_DEFAULT_HUGEPAGE_SIZE=' "$CONF_FILE" || echo 'OVS_DEFAULT_HUGEPAGE_SIZE=2048' >> "$CONF_FILE"
+					grep -q '^OVS_DEFAULT_HUGEPAGE_NUM='  "$CONF_FILE" || echo 'OVS_DEFAULT_HUGEPAGE_NUM=512'  >> "$CONF_FILE"
+				fi
+				;;
+		esac
+	fi
+fi
+
 if (grep -q OFED-internal /usr/bin/ofed_info > /dev/null 2>&1); then
     ofed_version=`ofed_info -n`
     ofed_minor=${ofed_version#*-}
