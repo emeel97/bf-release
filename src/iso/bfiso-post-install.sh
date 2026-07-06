@@ -387,6 +387,8 @@ network:
           via: "192.168.100.1"
           metric: 1025
 EOF
+		chmod 600 /etc/netplan/70-nodnic-h2g.yaml
+
 		cat > /etc/netplan/71-vlan4040.yaml << 'EOF'
 network:
   version: 2
@@ -402,6 +404,7 @@ network:
         - "192.168.240.2/29"
       dhcp4: false
 EOF
+		chmod 600 /etc/netplan/71-vlan4040.yaml
 	fi
 	return 0
 }
